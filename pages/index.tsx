@@ -49,7 +49,7 @@ export default function BarcodeScanner() {
     return () => {
       barcodeInput.removeEventListener('keydown', handleKeyDown);
     };
-  }, [handleBarcodeScan]);
+  }, []);
 
   return (
     <div>
