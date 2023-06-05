@@ -3,15 +3,14 @@ import { query } from '../../lib/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { userId, itemId } = req.body;
-  const currentTime = new Date().toISOString();
 
   try {
     await query(
       `
-      INSERT INTO checkout (user_id, item_id, checkout_time)
-      VALUES ($1, $2, $3)
+      INSERT INTO checkout_log (employee, radio_number)
+      VALUES ($1, $2)
     `,
-      [userId, itemId, currentTime]
+      [userId, itemId]
     );
 
     res.status(200).end();

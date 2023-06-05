@@ -17,7 +17,7 @@ export default function BarcodeScanner() {
   const handleScanComplete = async () => {
     if (inventoryBarcode && userBarcode) {
       try {
-        if (!userBarcode.startsWith('ID')) {
+        if (typeof(userBarcode)!='string') {
           await axios.post('/api/checkout', {
             userId: userBarcode,
             itemId: inventoryBarcode,
@@ -56,10 +56,6 @@ export default function BarcodeScanner() {
       }
     };
   }, []);
-  
-  
-  
-  
 
   return (
     <div>

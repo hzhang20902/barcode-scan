@@ -8,7 +8,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await query(
       `
-      UPDATE checkout
+      UPDATE checkout_log
       SET return_time = $1
       WHERE user_id = $2 AND item_id = $3
     `,
