@@ -42,8 +42,8 @@ create table checkout_log(
 
 alter table checkout_log alter column checkout_time set DEFAULT
 
-insert into checkout_log(log_id, employee, radio_number, checkout_time)
-values(DEFAULT, '8109571', '082449', timestamptz())
+insert into checkout_log(log_id, employee, radio_number)
+values(DEFAULT, '8109575', '082449')
 
 BEGIN;
 select * from checkout_log;
@@ -58,3 +58,13 @@ INSERT INTO radios(db_id, radio_number, status, dept_name)
 VALUES(DEFAULT, '082501', 'Available', (SELECT dept_name from departments WHERE dept_name='SMALL SORTS'));
 select * from radios;
 COMMIT;
+
+alter table checkout_log alter column exception set default null
+
+BEGIN;
+alter table checkout_log add column exception varchar;
+alter table checkout_log add column exc_logtime timestamptz default null;
+COMMIT;
+
+insert into checkout_log(employee, radio_number)
+values('8100011', '084555')
