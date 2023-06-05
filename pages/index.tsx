@@ -37,19 +37,29 @@ export default function BarcodeScanner() {
   };
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-      const barcodeData = event.currentTarget.value.trim();
-      handleBarcodeScan(barcodeData);
-      event.currentTarget.value = '';
+    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement> | Event): void => {
+      if (event instanceof KeyboardEvent) {
+        const barcodeData = (event as KeyboardEvent<HTMLInputElement>).currentTarget.value.trim();
+        handleBarcodeScan(barcodeData);
+        (event as KeyboardEvent<HTMLInputElement>).currentTarget.value = '';
+      }
     };
-
+  
     const barcodeInput = document.getElementById('barcodeInput') as HTMLInputElement;
-    barcodeInput.addEventListener('keydown', handleKeyDown);
-
+    if (barcodeInput) {
+      barcodeInput.addEventListener('keydown', handleKeyDown);
+    }
+  
     return () => {
-      barcodeInput.removeEventListener('keydown', handleKeyDown);
+      if (barcodeInput) {
+        barcodeInput.removeEventListener('keydown', handleKeyDown);
+      }
     };
   }, []);
+  
+  
+  
+  
 
   return (
     <div>

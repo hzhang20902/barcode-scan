@@ -1,0 +1,33 @@
+INSERT INTO departments(dept_id, dept_name)
+VALUES(DEFAULT, 'UNLOAD')
+
+SELECT * from departments
+
+BEGIN;
+truncate table radios cascade;
+truncate table departments cascade;
+COMMIT;
+
+
+
+INSERT INTO departments(dept_id, dept_name)
+VALUES(DEFAULT, 'UNLOAD'), 
+    (DEFAULT, 'FEEDERS'),
+    (DEFAULT, 'PRIMARY SORT'),
+    (DEFAULT, 'SMALL SORTS'),
+    (DEFAULT, 'PD WALL'),
+    (DEFAULT, 'SEC 1-3'),
+    (DEFAULT, 'SEC 4-6'),
+    (DEFAULT, 'INTERNATIONALS')
+    
+BEGIN;
+update departments set dept_id=3 where dept_id=13;
+update departments set dept_id=4 where dept_id=14;
+update departments set dept_id=5 where dept_id=15;
+update departments set dept_id=6 where dept_id=16;
+update departments set dept_id=7 where dept_id=17;
+update departments set dept_id=8 where dept_id=18;
+COMMIT;
+
+INSERT INTO radios(db_id, radio_number, status, dept_name)
+VALUES(DEFAULT, '084449', 'Available', (SELECT dept_name from departments WHERE dept_name='PD WALL'))
