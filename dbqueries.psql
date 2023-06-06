@@ -1,70 +1,117 @@
-INSERT INTO departments(dept_id, dept_name)
-VALUES(DEFAULT, 'UNLOAD')
+-- INSERT INTO departments(dept_id, dept_name)
+-- VALUES(DEFAULT, 'UNLOAD')
 
-SELECT * from departments
+-- SELECT * from departments
 
-update table radios set radio_number=082449 where radio_number=084449
+-- update table radios set radio_number=082449 where radio_number=084449
 
 
-INSERT INTO departments(dept_id, dept_name)
-VALUES(DEFAULT, 'UNLOAD'), 
-    (DEFAULT, 'FEEDERS'),
-    (DEFAULT, 'PRIMARY SORT'),
-    (DEFAULT, 'SMALL SORTS'),
-    (DEFAULT, 'PD WALL'),
-    (DEFAULT, 'SEC 1-3'),
-    (DEFAULT, 'SEC 4-6'),
-    (DEFAULT, 'INTERNATIONALS')
+-- INSERT INTO departments(dept_id, dept_name)
+-- VALUES(DEFAULT, 'UNLOAD'), 
+--     (DEFAULT, 'FEEDERS'),
+--     (DEFAULT, 'PRIMARY SORT'),
+--     (DEFAULT, 'SMALL SORTS'),
+--     (DEFAULT, 'PD WALL'),
+--     (DEFAULT, 'SEC 1-3'),
+--     (DEFAULT, 'SEC 4-6'),
+--     (DEFAULT, 'INTERNATIONALS')
     
+-- BEGIN;
+-- update departments set dept_id=3 where dept_id=13;
+-- update departments set dept_id=4 where dept_id=14;
+-- update departments set dept_id=5 where dept_id=15;
+-- update departments set dept_id=6 where dept_id=16;
+-- update departments set dept_id=7 where dept_id=17;
+-- update departments set dept_id=8 where dept_id=18;
+-- COMMIT;
+
+-- INSERT INTO radios(db_id, radio_number, status, dept_name)
+-- VALUES(DEFAULT, '084449', 'Available', (SELECT dept_name from departments WHERE dept_name='PD WALL'))
+
+-- update radios set radio_number='082449' where radio_number='084449'
+
+-- SET TIME ZONE 'EST'
+
+-- create table checkout_log(
+--     log_id uuid DEFAULT uuid_generate_v1(), 
+--     employee char(7) NOT NULL,
+--     radio_number char(6) NOT NULL,
+--     checkout_time TIMESTAMPTZ,
+--     PRIMARY KEY(log_id)
+-- )
+
+-- alter table checkout_log alter column checkout_time set DEFAULT
+
+-- insert into checkout_log(log_id, employee, radio_number)
+-- values(DEFAULT, '8109575', '082449')
+
+-- alter table radios alter column radio_number type char(6)
+
+-- BEGIN;
+-- INSERT INTO radios(db_id, radio_number, status, dept_name)
+-- VALUES(DEFAULT, '082501', 'Available', (SELECT dept_name from departments WHERE dept_name='SMALL SORTS'));
+-- select * from radios;
+-- COMMIT;
+
+-- alter table checkout_log alter column exception set default null
+
+-- BEGIN;
+-- alter table checkout_log add column exception varchar;
+-- alter table checkout_log add column exc_logtime timestamptz default null;
+-- COMMIT;
+
+-- insert into checkout_log(employee, radio_number)
+-- values('8100011', '084555')
+
+-- CREATE TABLE radios(
+--     db_id uuid DEFAULT uuid_generate_v4(),
+--     radio_number VARCHAR NOT NULL,
+--     status VARCHAR NOT NULL,
+--     dept_name varchar(100) NOT NULL,
+--     PRIMARY KEY(db_id),
+--     FOREIGN KEY(dept_name) REFERENCES departments(dept_name)
+-- );
+
 BEGIN;
-update departments set dept_id=3 where dept_id=13;
-update departments set dept_id=4 where dept_id=14;
-update departments set dept_id=5 where dept_id=15;
-update departments set dept_id=6 where dept_id=16;
-update departments set dept_id=7 where dept_id=17;
-update departments set dept_id=8 where dept_id=18;
-COMMIT;
-
-INSERT INTO radios(db_id, radio_number, status, dept_name)
-VALUES(DEFAULT, '084449', 'Available', (SELECT dept_name from departments WHERE dept_name='PD WALL'))
-
-update radios set radio_number='082449' where radio_number='084449'
-
-SET TIME ZONE 'EST'
-
-create table checkout_log(
-    log_id uuid DEFAULT uuid_generate_v1(), 
-    employee char(7) NOT NULL,
-    radio_number char(6) NOT NULL,
-    checkout_time TIMESTAMPTZ,
-    PRIMARY KEY(log_id)
-)
-
-alter table checkout_log alter column checkout_time set DEFAULT
-
-insert into checkout_log(log_id, employee, radio_number)
-values(DEFAULT, '8109575', '082449')
-
-BEGIN;
-select * from checkout_log;
+select * from checkoutlog;
 select * from radios;
 select * from departments;
 COMMIT;
 
-alter table radios alter column radio_number type char(6)
+alter table checkout_log rename to checkoutlog
+alter table checkoutlog add column radio_id char(6)
+alter table radios drop CONSTRAINT radios_pkey
+alter table radios add CONSTRAINT radios_pkey primary key(db_id, radio_number)
 
-BEGIN;
-INSERT INTO radios(db_id, radio_number, status, dept_name)
-VALUES(DEFAULT, '082501', 'Available', (SELECT dept_name from departments WHERE dept_name='SMALL SORTS'));
-select * from radios;
-COMMIT;
+ALTER TABLE checkoutlog
+    ADD CONSTRAINT radios_checkoutlog_fk foreign key (radio_number) REFERENCES radios(radio_number);
 
-alter table checkout_log alter column exception set default null
+alter table checkout_log add r_num1 char(6);
+update checkout_log
+    set r_num1 = radios.radio_number
+from radios
+    where checkout_log.radio_number=radios.radio_number
 
-BEGIN;
-alter table checkout_log add column exception varchar;
-alter table checkout_log add column exc_logtime timestamptz default null;
-COMMIT;
+alter table checkout_log drop COLUMN radio_number
+alter table checkout_log add constraint fk_checkout_log_radios FOREIGN key (radio_number) REFERENCES radios(radio_number)
+alter table checkout_log drop COLUMN r_num1
 
-insert into checkout_log(employee, radio_number)
-values('8100011', '084555')
+
+-- --show the primary key of each table, replace the values after where with table names:
+-- select
+--     t.relname as table_name,
+--     i.relname as index_name,
+--     a.attname as column_name
+-- from
+--     pg_class t
+--     join pg_attribute a on a.attrelid = t.oid
+--     join pg_index ix    on t.oid = ix.indrelid AND a.attnum = ANY(ix.indkey)
+--     join pg_class i     on i.oid = ix.indexrelid
+--     left join pg_attrdef d on d.adrelid = t.oid and d.adnum = a.attnum  
+-- where
+--     t.relkind = 'r'
+--     and t.relname in ( 'radios', 'departments', 'checkout_log' )
+-- order by
+--     t.relname,
+--     i.relname,
+--     a.attnum;
