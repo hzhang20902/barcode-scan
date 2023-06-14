@@ -1,35 +1,39 @@
 import { useState, useEffect, KeyboardEvent } from 'react';
 import axios from 'axios';
+import { query } from '../lib/db';
 
 export default function BarcodeScanner() {
+  const [empBarcode, setEmpBarcode] = useState('');
   const [inventoryBarcode, setInventoryBarcode] = useState('');
-  const [userBarcode, setUserBarcode] = useState('');
+  const [getLog, setGetLog] = useState(false);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleBarcodeScan = (barcodeData: string) => {
-    if (!userBarcode) {
-      setUserBarcode(barcodeData);
+    if (!empBarcode) {
+      setEmpBarcode(barcodeData);
     } else {
       setInventoryBarcode(barcodeData);
-      handleScanComplete();
+      handleScanComplete(); 
     }
   };
 
   const handleScanComplete = async () => {
-    if (inventoryBarcode && userBarcode) {
+    if (empBarcode && inventoryBarcode) {
+      console.log(empBarcode)
       try {
-        if (typeof(userBarcode)!='string') {
+        if (empBarcode.startsWith('8')) {
           await axios.post('/api/checkout', {
-            userId: userBarcode,
-            itemId: inventoryBarcode,
+            employeeId: empBarcode,
+            radioId: inventoryBarcode,
           });
         } else {
           await axios.post('/api/return', {
-            userId: userBarcode,
-            itemId: inventoryBarcode,
+            employeeId: empBarcode,
+            radioId: inventoryBarcode,
           });
         }
         setInventoryBarcode('');
-        setUserBarcode('');
+        setEmpBarcode('');
       } catch (error) {
         console.error('An error occurred:', error);
       }
@@ -37,11 +41,15 @@ export default function BarcodeScanner() {
   };
 
   useEffect(() => {
+    
+
+
+
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement> | Event): void => {
       if (event instanceof KeyboardEvent) {
-        const barcodeData = (event as KeyboardEvent<HTMLInputElement>).currentTarget.value.trim();
+        const barcodeData = (event as unknown as KeyboardEvent<HTMLInputElement>).currentTarget.value;
         handleBarcodeScan(barcodeData);
-        (event as KeyboardEvent<HTMLInputElement>).currentTarget.value = '';
+        (event as unknown as KeyboardEvent<HTMLInputElement>).currentTarget.value = '';
       }
     };
   
@@ -55,10 +63,11 @@ export default function BarcodeScanner() {
         barcodeInput.removeEventListener('keydown', handleKeyDown);
       }
     };
-  }, []);
+  }, [handleBarcodeScan]);
 
   return (
     <div>
+      {empBarcode? (<h1>Radio Number</h1>) : (<h1>Employee ID</h1>)}
       <input type="text" id="barcodeInput" autoFocus />
     </div>
   );

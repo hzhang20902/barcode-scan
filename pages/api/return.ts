@@ -2,17 +2,17 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { query } from '../../lib/db';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { userId, itemId } = req.body;
-  const currentTime = new Date().toISOString();
+  const { employeeId, radioId } = req.body;
 
   try {
     await query(
       `
       UPDATE checkout_log
-      SET return_time = $1
-      WHERE user_id = $2 AND item_id = $3
+      SET return_time = now() - interval '4' hour
+      WHERE employee_id = $1 AND radio_number = $2
+      UPDATE radios SET status ='Available' where radio_number = $2;
     `,
-      [currentTime, userId, itemId]
+      [employeeId, radioId]
     );
 
     res.status(200).end();
